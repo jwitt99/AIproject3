@@ -10,7 +10,7 @@ vecArr = []
 for i in images:
     newArr = i.reshape(-1)
     vecArr.append(newArr)
-print(vecArr[0].size)
+
 
 model = Sequential()  # declare modelnd
 model.add(Dense(10, input_shape=(28 * 28,), kernel_initializer='he_normal'))  # first layer
