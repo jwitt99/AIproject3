@@ -6,21 +6,17 @@ import numpy as np
 
 # Model Template
 
-images = np.load("images.npy")
 #Load in images array
 npyImages = np.load("images.npy")
 
-vecArr = []
-for i in images:
-    images = []
+images = []
+
 for i in npyImages:
     newArr = i.reshape(-1)
-    vecArr.append(newArr)
     images.append(newArr)
 
 # Load in nmpy labels array and prints it
 npyLabels = np.load('labels.npy')
-print(npyLabels)
 
 # one hot encode
 labels = to_categorical(npyLabels)
@@ -49,8 +45,11 @@ for x in range(0, 6500):
         testLabels.append(labels[x])
 
 print("Training array size", len(trainingImages))
+print("Training Label size", len(trainingLabels))
 print("Validation array size", len(validationImages))
+print("Validation array size", len(validationLabels))
 print("Testing array size", len(testImages))
+print("Testing array size", len(testLabels))
 # ---------------------------------------------------
 
 # You are given 6500 images and labels. The training set should
