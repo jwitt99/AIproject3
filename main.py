@@ -12,7 +12,7 @@ npyImages = np.load("images.npy")
 
 vecArr = []
 for i in images:
-images = []
+    images = []
 for i in npyImages:
     newArr = i.reshape(-1)
     vecArr.append(newArr)
