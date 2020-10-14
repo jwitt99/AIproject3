@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense, Activation
+from keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Dropout, Flatten
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import random
@@ -12,9 +12,9 @@ import numpy as np
 npyImages = np.load("images.npy")
 npyLabels = np.load('labels.npy')
 
-image_index = 35
-print(npyLabels[image_index])
-plt.imshow(npyImages[image_index], cmap='Greys')
+# image_index = 35
+# print(npyLabels[image_index])
+# plt.imshow(npyImages[image_index], cmap='Greys')
 # plt.show()
 
 
@@ -46,6 +46,9 @@ print("Testing array size", len(testImages))
 print("Testing array size", len(testLabels))
 
 trainingImages = np.asarray(trainingImages)
+
+tempImage = trainingImages
+
 trainingLabels = np.asarray(trainingLabels)
 validationImages = np.asarray(validationImages)
 validationLabels = np.asarray(validationLabels)
@@ -53,10 +56,10 @@ testImages = np.asarray(testImages)
 testLabels = np.asarray(testLabels)
 
 
-print(trainingImages.shape)
-print(testImages.shape)
-
-print(trainingLabels[:image_index + 1])
+# print(trainingImages.shape)
+# print(testImages.shape)
+#
+# print(trainingLabels[:image_index + 1])
 
 #divides data into three sets
 images = []
@@ -70,6 +73,7 @@ testImages = testImages.reshape(testImages.shape[0], imgRows, imgCols, 1)
 trainingImages = trainingImages/255
 validationImages = validationImages/255
 testImages = testImages/255
+
 
 numClasses = 10
 
@@ -88,19 +92,35 @@ testLabels = to_categorical(testLabels, numClasses)
 # labels = to_categorical(npyLabels)
 
 
-
-
-
 # ---------------------------------------------------
 
 # You are given 6500 images and labels. The training set should
 # contain ~60% of the data, the validation set should contain ~15%
 # of the data, and the test set should contain ~25% of the data.
 
-model = Sequential()  # declare modelnd
+
+#
+# model.add(Conv2D(32, kernel_size=(3, 3),
+#      activation='relu',
+#      input_shape=(imgRows, imgCols, 1)))
+
+# model.add(Conv2D(64, (3, 3), activation='relu'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Dropout(0.25))
+# model.add(Flatten())
+# model.add(Dense(200, activation='sigmoid'))
+# model.add(Dropout(0.5))
+# model.add(Dense(numClasses, activation='softmax'))
+# model.add(Dropout(0.75))
+# model.add(Dense(500))
+
+
+model = Sequential()  # declare model
+
 model.add(Dense(10, input_shape=(28 * 28,), kernel_initializer='he_normal'))  # first layer
 model.add(Activation('relu'))
-#
+model.add(Dense(30))
+model.add(Activation('relu'))
 #
 #
 # Fill in Model Here
@@ -109,7 +129,7 @@ model.add(Activation('relu'))
 model.add(Dense(10, kernel_initializer='he_normal'))  # last layer
 model.add(Activation('softmax'))
 # Compile Model
-model.compile(optimizer='sgd',
+model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
@@ -121,7 +141,20 @@ model.compile(optimizer='sgd',
 history = model.fit(trainingImages, trainingLabels,
                     validation_data = (validationImages, validationLabels),
                     epochs=10,
+                    verbose=1,
                     batch_size=512)
 
+
+
+image_index = 35
 print(history.history)
-model.predict()
+
+
+# plt.imshow(npyImages[image_index], cmap='Greys')
+# plt.show()
+
+print(npyLabels[image_index])
+gray = npyImages[image_index].reshape(1, imgRows, imgCols, 1)
+gray = gray/255
+predicts = model.predict(gray)
+print(predicts.argmax())
