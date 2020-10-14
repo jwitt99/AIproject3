@@ -1,28 +1,22 @@
 from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.utils import to_categorical
+import matplotlib.pyplot as plt
 import random
 import numpy as np
 
 # Model Template
+# https://www.sitepoint.com/keras-digit-recognition-tutorial/
 
 #Load in images array
 npyImages = np.load("images.npy")
-
-images = []
-
-for i in npyImages:
-    newArr = i.reshape(-1)
-    images.append(newArr)
-
-# Load in nmpy labels array and prints it
 npyLabels = np.load('labels.npy')
 
-# one hot encode
-labels = to_categorical(npyLabels)
+image_index = 35
+print(npyLabels[image_index])
+plt.imshow(npyImages[image_index], cmap='Greys')
+# plt.show()
 
-
-#divides data into three sets
 
 trainingImages = []
 trainingLabels = []
@@ -35,14 +29,14 @@ random.seed()
 for x in range(0, 6500):
     randVal = random.randint(0,100)
     if(randVal <= 60):
-        trainingImages.append(images[x])
-        trainingLabels.append(labels[x])
+        trainingImages.append(npyImages[x])
+        trainingLabels.append(npyLabels[x])
     elif(randVal > 60 and randVal <75):
-        validationImages.append(images[x])
-        validationLabels.append(labels[x])
+        validationImages.append(npyImages[x])
+        validationLabels.append(npyLabels[x])
     else:
-        testImages.append(images[x])
-        testLabels.append(labels[x])
+        testImages.append(npyImages[x])
+        testLabels.append(npyLabels[x])
 
 print("Training array size", len(trainingImages))
 print("Training Label size", len(trainingLabels))
@@ -50,6 +44,53 @@ print("Validation array size", len(validationImages))
 print("Validation array size", len(validationLabels))
 print("Testing array size", len(testImages))
 print("Testing array size", len(testLabels))
+
+trainingImages = np.asarray(trainingImages)
+trainingLabels = np.asarray(trainingLabels)
+validationImages = np.asarray(validationImages)
+validationLabels = np.asarray(validationLabels)
+testImages = np.asarray(testImages)
+testLabels = np.asarray(testLabels)
+
+
+print(trainingImages.shape)
+print(testImages.shape)
+
+print(trainingLabels[:image_index + 1])
+
+#divides data into three sets
+images = []
+imgRows = 28
+imgCols = 28
+
+trainingImages = trainingImages.reshape(trainingImages.shape[0], imgRows, imgCols, 1)
+validationImages = validationImages.reshape(validationImages.shape[0], imgRows, imgCols, 1)
+testImages = testImages.reshape(testImages.shape[0], imgRows, imgCols, 1)
+
+trainingImages = trainingImages/255
+validationImages = validationImages/255
+testImages = testImages/255
+
+numClasses = 10
+
+trainingLabels = to_categorical(trainingLabels, numClasses)
+validationLabels = to_categorical(validationLabels, numClasses)
+testLabels = to_categorical(testLabels, numClasses)
+
+# for i in npyImages:
+#     newArr = i.reshape(-1)
+#     images.append(newArr)
+
+# # Load in nmpy labels array and prints it
+# print(npyLabels)
+
+# # one hot encode
+# labels = to_categorical(npyLabels)
+
+
+
+
+
 # ---------------------------------------------------
 
 # You are given 6500 images and labels. The training set should
