@@ -12,6 +12,9 @@ import numpy as np
 npyImages = np.load("images.npy")
 npyLabels = np.load('labels.npy')
 
+i = npyImages
+l = npyLabels
+
 # image_index = 35
 # print(npyLabels[image_index])
 # plt.imshow(npyImages[image_index], cmap='Greys')
@@ -25,6 +28,8 @@ testImages = []
 testLabels = []
 
 random.seed()
+
+npyImages = npyImages.reshape(6500, 784)
 for x in range(0, 6500):
     randVal = random.randint(0,100)
     if(randVal <= 60):
@@ -37,13 +42,16 @@ for x in range(0, 6500):
         testImages.append(npyImages[x])
         testLabels.append(npyLabels[x])
 
-print("Training array size", len(trainingImages))
-print("Training Label size", len(trainingLabels))
-print("Validation array size", len(validationImages))
-print("Validation array size", len(validationLabels))
-print("Testing array size", len(testImages))
-print("Testing array size", len(testLabels))
+# print("Training array size", len(trainingImages))
+# print("Training Label size", len(trainingLabels))
+# print("Validation array size", len(validationImages))
+# print("Validation array size", len(validationLabels))
+# print("Testing array size", len(testImages))
+# print("Testing array size", len(testLabels))
 
+
+
+trainingImages = np.asarray(trainingImages)
 trainingImages = np.asarray(trainingImages)
 trainingLabels = np.asarray(trainingLabels)
 validationImages = np.asarray(validationImages)
@@ -51,25 +59,15 @@ validationLabels = np.asarray(validationLabels)
 testImages = np.asarray(testImages)
 testLabels = np.asarray(testLabels)
 
-tempImage = trainingImages
 
 #divides data into three sets
-images = []
+
 imgRows = 28
 imgCols = 28
 
-for i in trainingImages:
-    newArr = i.reshape(-1)
-    images.append(newArr)
 
-trainingImages = np.asarray(images)
 
 print("training images shape after", trainingImages.shape)
-
-# trainingImages = trainingImages/255
-# validationImages = validationImages/255
-# testImages = testImages/255
-
 
 numClasses = 10
 
@@ -86,10 +84,17 @@ testLabels = to_categorical(testLabels, numClasses)
 
 model = Sequential()  # declare model
 
-model.add(Dense(10, input_shape=(28 * 28,), kernel_initializer='he_normal'))  # first layer
+model.add(Dense(50, input_shape=(28*28,), kernel_initializer='he_normal'))  # first layer
 model.add(Activation('relu'))
-# model.add(Dense(30))
-# model.add(Activation('relu'))
+
+model.add(Dense(300))
+model.add(Activation('relu'))
+
+model.add(Dense(500))
+model.add(Activation('relu'))
+
+model.add(Dense(1000))
+model.add(Activation('relu'))
 #
 #
 # Fill in Model Here
@@ -113,7 +118,7 @@ print("Shape of training labels is ", trainingLabels.shape)
 
 history = model.fit(trainingImages, trainingLabels,
                     validation_data = (validationImages, validationLabels),
-                    epochs=10,
+                    epochs=20,
                     verbose=1,
                     batch_size=512)
 
@@ -124,9 +129,9 @@ print(history.history)
 
 # plt.imshow(npyImages[image_index], cmap='Greys')
 # plt.show()
-
-print(npyLabels[image_index])
-gray = npyImages[image_index].reshape(1, imgRows, imgCols, 1)
-gray = gray/255
-predicts = model.predict(gray)
-print(predicts.argmax())
+#
+# print(testLabels[image_index].index(1))
+# gray = testImages[image_index]
+# gray = gray/255
+# predicts = model.predict(gray)
+# print(predicts.argmax())
