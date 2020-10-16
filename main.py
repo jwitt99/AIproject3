@@ -1,9 +1,12 @@
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Dropout, Flatten
+from sklearn.metrics import confusion_matrix,classification_report
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import random
+import tensorflow as tf
 import numpy as np
+
 
 # Model Template
 # https://www.sitepoint.com/keras-digit-recognition-tutorial/
@@ -29,6 +32,8 @@ testLabels = []
 
 random.seed()
 
+numTestImages = 0
+
 npyImages = npyImages.reshape(6500, 784)
 for x in range(0, 6500):
     randVal = random.randint(0,100)
@@ -41,6 +46,7 @@ for x in range(0, 6500):
     else:
         testImages.append(npyImages[x])
         testLabels.append(npyLabels[x])
+        numTestImages +=1
 
 # print("Training array size", len(trainingImages))
 # print("Training Label size", len(trainingLabels))
@@ -49,9 +55,6 @@ for x in range(0, 6500):
 # print("Testing array size", len(testImages))
 # print("Testing array size", len(testLabels))
 
-
-
-trainingImages = np.asarray(trainingImages)
 trainingImages = np.asarray(trainingImages)
 trainingLabels = np.asarray(trainingLabels)
 validationImages = np.asarray(validationImages)
@@ -84,22 +87,19 @@ testLabels = to_categorical(testLabels, numClasses)
 
 model = Sequential()  # declare model
 
-model.add(Dense(50, input_shape=(28*28,), kernel_initializer='he_normal'))  # first layer
-model.add(Activation('relu'))
+model.add(Dense(300, input_shape=(28*28,), kernel_initializer='he_normal'))  # first layer
+model.add(Activation('tanh'))
 
 model.add(Dense(300))
-model.add(Activation('relu'))
+model.add(Activation('tanh'))
 
-model.add(Dense(500))
-model.add(Activation('relu'))
+model.add(Dense(300))
+model.add(Activation('tanh'))
 
-model.add(Dense(1000))
-model.add(Activation('relu'))
 #
-#
-# Fill in Model Here
-#
-#
+# model.add(Dense(200))
+# model.add(Activation('relu'))
+
 model.add(Dense(10, kernel_initializer='he_normal'))  # last layer
 model.add(Activation('softmax'))
 # # Compile Model
@@ -116,22 +116,40 @@ model.compile(optimizer='adam',
 print("Shape of training images is ", trainingImages.shape)
 print("Shape of training labels is ", trainingLabels.shape)
 
+NUM_EPOCHS = 20
+BATCH_SIZE = 200
+
 history = model.fit(trainingImages, trainingLabels,
                     validation_data = (validationImages, validationLabels),
-                    epochs=20,
+                    epochs=NUM_EPOCHS,
                     verbose=1,
-                    batch_size=512)
+                    batch_size=BATCH_SIZE)
 
 
 
 image_index = 35
 print(history.history)
 
-# plt.imshow(npyImages[image_index], cmap='Greys')
-# plt.show()
-#
-# print(testLabels[image_index].index(1))
-# gray = testImages[image_index]
-# gray = gray/255
-# predicts = model.predict(gray)
-# print(predicts.argmax())
+e = range(1,NUM_EPOCHS + 1)
+plt.plot(e, history.history['accuracy'], color='blue', label = 'Training Accuracy')
+plt.plot(e, history.history['val_accuracy'], color='red', label = 'Validation Accuracy')
+plt.xticks(e)
+plt.xlabel('Epochs')
+plt.ylabel('%')
+plt.title('Percent Accuracy per Epoch of Training')
+plt.legend()
+plt.show()
+
+rounded_labels=np.argmax(testLabels, axis=1)
+
+print("Shape of testing labels is ", testLabels.shape)
+print("Shape of rounded labels is ", rounded_labels.shape)
+print("Shape of testing images is ", testImages.shape)
+
+test_predictions = model.predict(testImages)
+confusion = confusion_matrix(rounded_labels, np.argmax(test_predictions,axis=1))
+
+print(confusion)
+
+pred_bool = np.argmax(test_predictions,axis=1)
+print(classification_report(testLabels, pred_bool))
